@@ -263,7 +263,7 @@ training-management-system/
 > **Edit this section in your own words before publishing.**
 
 - **The original module.** I was the product owner and technical lead for the *Training* section of an academy's internal staff portal. I defined the workflows (agendas, weekly surveys, the Classroom gradebook and the materials library), worked with the training team on requirements, configured the Google Cloud and Classroom integration, and ran the rollout.
-- **This repository is a clean-room rebuild for my portfolio.** No source code, data, wording, branding or documents from the original system were copied. The features and workflows were reimplemented from a functional description, with new code, a new data model and a new design.
+- **This repository is an independent rebuild for my portfolio, written from scratch.** No source code, data, wording, branding or documents from the original system were copied. The features and workflows were reimplemented from a functional description, with new code, a new data model and a new design.
 - **AI-assisted development.** The code was written with an AI coding assistant (Claude Code) under my direction. I set the scope and requirements, chose and approved the architecture (service layer, mock adapters, separate worker, OpenAPI, Docker Compose), reviewed the results and tested the workflows. Commits authored by "Claude" reflect this.
 
 ## License
