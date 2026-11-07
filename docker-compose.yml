@@ -1,0 +1,66 @@
+# Full local stack: PostgreSQL, API, background worker, web app and a local mail inbox.
+#   docker compose up --build      -> app on http://localhost:8080, inbox on http://localhost:8025
+name: training-management-system
+
+x-backend: &backend
+  build: ./backend
+  env_file: .env
+  environment:
+    DATABASE_URL: postgres://tms:tms@db:5432/tms
+    EMAIL_HOST: mailpit
+    EMAIL_PORT: "1025"
+    FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
+    PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:8080}
+  depends_on:
+    db:
+      condition: service_healthy
+  volumes:
+    - media:/app/media
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: tms
+      POSTGRES_USER: tms
+      POSTGRES_PASSWORD: tms
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tms -d tms"]
+      interval: 5s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:v1.21
+    ports:
+      - "8025:8025"
+
+  backend:
+    <<: *backend
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py seed_demo --if-empty &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 60"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')\""]
+      interval: 10s
+      retries: 12
+
+  worker:
+    <<: *backend
+    command: python manage.py run_scheduler
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+  media:

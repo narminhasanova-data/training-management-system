@@ -1,0 +1,10 @@
+Django==5.2.19
+djangorestframework==3.16.1
+drf-spectacular==0.28.0
+drf-spectacular-sidecar==2025.10.1
+psycopg[binary]==3.2.12
+dj-database-url==3.0.1
+reportlab==4.4.4
+cryptography==46.0.3
+whitenoise==6.11.0
+gunicorn==23.0.0
