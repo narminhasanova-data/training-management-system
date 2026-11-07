@@ -1,0 +1,17 @@
+{% extends "public/base.html" %}
+{% block title %}Thank you{% endblock %}
+{% block content %}
+<section class="card hero">
+  <p class="eyebrow">{{ survey.title }}</p>
+  {% if already %}
+    <h1>You have already answered</h1>
+    <p class="lead">Thank you{% if name %}, {{ name }}{% endif %}. Each link accepts one answer, and yours has been recorded.</p>
+  {% elif preview %}
+    <h1>Preview complete</h1>
+    <p class="lead">The form works. Nothing was saved, because this was a preview.</p>
+  {% else %}
+    <h1>Thank you{% if name %}, {{ name }}{% endif %}!</h1>
+    <p class="lead">Your feedback has been sent to the training team.</p>
+  {% endif %}
+</section>
+{% endblock %}

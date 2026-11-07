@@ -1,0 +1,111 @@
+{% extends "public/base.html" %}
+{% block title %}{{ survey.title }}{% endblock %}
+{% block head %}
+<style>
+  .q { margin:0 0 4px; font-weight:600; }
+  .req { display:inline-block; margin-left:6px; font-size:12px; font-weight:600; color:var(--brand); background:var(--brand-soft);
+         border-radius:99px; padding:1px 8px; vertical-align:2px; }
+  .card.missing { border-color:var(--danger); box-shadow:0 0 0 3px var(--danger-soft); }
+  .err { display:none; margin-top:10px; font-size:14px; color:var(--danger); }
+  .card.missing .err { display:block; }
+  fieldset { border:0; margin:0; padding:0; min-width:0; }
+  legend { padding:0; }
+  .scale { display:grid; grid-template-columns:repeat(5, 1fr); gap:8px; margin-top:12px; }
+  .pill { position:relative; }
+  .pill input { position:absolute; opacity:0; inset:0; cursor:pointer; }
+  .pill span { display:flex; align-items:center; justify-content:center; text-align:center; min-height:48px; padding:6px;
+               border:1px solid var(--line); border-radius:10px; font-size:14px; background:var(--soft); }
+  .pill input:checked + span { border-color:var(--brand); background:var(--brand-soft); color:var(--brand); font-weight:600; }
+  .pill input:focus-visible + span { outline:2px solid var(--brand); outline-offset:2px; }
+  textarea { width:100%; min-height:44px; margin-top:10px; padding:10px 12px; border:1px solid var(--line); border-radius:10px;
+             font:inherit; resize:vertical; background:var(--soft); }
+  textarea:focus { outline:2px solid var(--brand); border-color:transparent; background:#fff; }
+  .grid { margin-top:12px; display:grid; gap:6px; }
+  .grid-head, .grid-row { display:grid; grid-template-columns:minmax(120px, 1.4fr) repeat(var(--cols), minmax(64px, 1fr)); gap:6px;
+                          align-items:center; }
+  .grid-head span { font-size:12px; color:var(--muted); text-align:center; line-height:1.25; }
+  .grid-row { background:var(--soft); border-radius:10px; padding:6px 8px; }
+  .grid-row .label { font-size:15px; font-weight:500; }
+  .grid-row label { display:flex; flex-direction:column; align-items:center; gap:2px; cursor:pointer; padding:6px 0; }
+  .grid-row label small { display:none; font-size:11px; color:var(--muted); text-align:center; }
+  input[type=radio] { width:20px; height:20px; accent-color:var(--brand); cursor:pointer; margin:0; }
+  .actions { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  .submit { border:0; border-radius:10px; padding:12px 26px; font:inherit; font-weight:600; color:#fff; background:var(--brand); cursor:pointer; }
+  .submit:hover { background:#3730A3; }
+  .reset { border:0; background:none; color:var(--muted); font:inherit; cursor:pointer; }
+  @media (max-width:640px) {
+    .scale { grid-template-columns:1fr; }
+    .pill span { justify-content:flex-start; padding:0 14px; }
+    .grid-head { display:none; }
+    .grid-row { grid-template-columns:repeat(var(--cols), 1fr); padding:10px 8px; }
+    .grid-row .label { grid-column:1 / -1; margin-bottom:2px; }
+    .grid-row label small { display:block; }
+  }
+</style>
+{% endblock %}
+{% block content %}
+<section class="card hero">
+  <p class="eyebrow">Weekly feedback</p>
+  <h1>{{ survey.title }}</h1>
+  <p class="lead">Tell us how this week went. It takes about three minutes, and your answers help the trainers improve the course.</p>
+  {% if name %}<p class="who">Answering as <b>{{ name }}</b></p>{% endif %}
+  {% if preview %}<div class="note">Preview: this is how students see the survey. Answers sent from this page are not saved.</div>{% endif %}
+  {% if missing_count %}<div class="alert" role="alert">Please answer the {{ missing_count }} highlighted question{{ missing_count|pluralize }}.</div>{% endif %}
+</section>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  <div style="display:flex;flex-direction:column;gap:14px">
+  {% for q in questions %}
+    <section class="card{% if q.missing %} missing{% endif %}" id="{{ q.id }}">
+      {% if q.kind == "choice" %}
+        <fieldset>
+          <legend class="q">{{ q.text }}<span class="req">Required</span></legend>
+          <div class="scale">
+            {% for option in q.options %}
+              <label class="pill"><input type="radio" name="{{ q.id }}" value="{{ option }}"{% if option == q.value %} checked{% endif %}><span>{{ option }}</span></label>
+            {% endfor %}
+          </div>
+        </fieldset>
+      {% elif q.kind == "text" %}
+        <label class="q" for="f-{{ q.id }}">{{ q.text }}</label>
+        <textarea id="f-{{ q.id }}" name="{{ q.id }}" rows="2" maxlength="3000" placeholder="Optional">{{ q.value }}</textarea>
+      {% else %}
+        <fieldset>
+          <legend class="q">{{ q.text }}<span class="req">Required</span></legend>
+          <div class="grid" style="--cols: {{ q.columns|length }}">
+            <div class="grid-head" aria-hidden="true"><span></span>{% for c in q.columns %}<span>{{ c }}</span>{% endfor %}</div>
+            {% for row in q.row_items %}
+              <div class="grid-row" role="radiogroup" aria-label="{{ row.label }}">
+                <span class="label">{{ row.label }}</span>
+                {% for c in q.columns %}
+                  <label><input type="radio" name="{{ row.field }}" value="{{ c }}"{% if c == row.value %} checked{% endif %} aria-label="{{ row.label }}: {{ c }}"><small>{{ c }}</small></label>
+                {% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+        </fieldset>
+      {% endif %}
+      <p class="err">{% if q.kind == "grid" %}Choose one answer in every row.{% else %}This question is required.{% endif %}</p>
+    </section>
+  {% endfor %}
+  <div class="actions">
+    <button type="submit" class="submit">Submit</button>
+    <button type="reset" class="reset">Clear form</button>
+  </div>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+  // A highlighted question stops being red once it is answered.
+  document.querySelectorAll(".card.missing").forEach(function (card) {
+    card.addEventListener("change", function () {
+      var groups = {};
+      card.querySelectorAll("input[type=radio]").forEach(function (i) { groups[i.name] = groups[i.name] || !!card.querySelector('input[name="' + i.name + '"]:checked'); });
+      if (Object.values(groups).every(Boolean)) card.classList.remove("missing");
+    });
+  });
+  document.querySelector(".card.missing") && document.querySelector(".card.missing").scrollIntoView({ block: "center" });
+</script>
+{% endblock %}
