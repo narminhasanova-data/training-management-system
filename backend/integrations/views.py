@@ -66,7 +66,7 @@ def mock_authorize(request):
         if purpose == "classroom":
             from training.services import classroom
 
-            classroom.refresh_materials_later()
+            classroom.refresh_materials()
         return redirect(accounts.return_url(state, connected="ok", purpose=purpose, email=acc.email))
     scopes = [(s, accounts.SCOPE_LABELS.get(s, s)) for s in accounts.SCOPES[purpose]]
     return render(

@@ -283,7 +283,9 @@ class Command(BaseCommand):
         for purpose in (ConnectedAccount.Purpose.MAIL, ConnectedAccount.Purpose.CLASSROOM):
             if not accounts.account(purpose):
                 accounts.complete(
-                    {"purpose": purpose, "by": "seed_demo"}, "coordinator@academy.example", accounts.SCOPES[purpose]
+                    {"purpose": purpose, "by": "Training Coordinator"},
+                    "coordinator@academy.example",
+                    accounts.SCOPES[purpose],
                 )
 
     def link_classroom(self, cohort: Cohort):

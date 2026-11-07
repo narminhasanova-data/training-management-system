@@ -4,8 +4,12 @@ name: training-management-system
 
 x-backend: &backend
   build: ./backend
-  env_file: .env
+  env_file:
+    - path: .env
+      required: false
   environment:
+    # Local demo only. Set a real DJANGO_SECRET_KEY in .env before exposing the stack anywhere.
+    DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-local-compose-demo-key-change-me}
     DATABASE_URL: postgres://tms:tms@db:5432/tms
     EMAIL_HOST: mailpit
     EMAIL_PORT: "1025"

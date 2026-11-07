@@ -107,6 +107,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = Path(env("MEDIA_ROOT", str(BASE_DIR / "media")))
 SERVE_MEDIA = env_bool("SERVE_MEDIA", True)
+WHITENOISE_USE_FINDERS = WHITENOISE_AUTOREFRESH = DEBUG  # no collectstatic needed in development
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
