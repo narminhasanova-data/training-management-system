@@ -99,3 +99,11 @@ def test_send_requires_students_or_a_test_address(api):
     _saved(api)
     r = api.post("/api/cohorts/102/agenda/send/", {"week": 6, "kind": "week", "channel": "email"}, format="json")
     assert r.status_code == 400
+
+
+def test_pdf_escapes_markup_in_user_text(api):
+    days = api.get("/api/cohorts/102/agenda/", {"week": 6, "kind": "week"}).json()["days"]
+    days[0]["rows"][0]["text"] = "Q&A <b>bold?</b>"
+    api.put("/api/cohorts/102/agenda/", {"week": 6, "kind": "week", "days": days}, format="json")
+    r = api.get("/api/cohorts/102/agenda/pdf/", {"week": 6, "kind": "week"})
+    assert r.status_code == 200 and r.content.startswith(b"%PDF")

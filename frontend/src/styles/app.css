@@ -309,6 +309,8 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 @media (max-width: 640px) {
   .user { display: none; }
   .page-header h1 { font-size: 20px; }
+  .agenda-day-head .field.inline { flex-wrap: wrap; width: 100%; }
+  .agenda-day-head select { flex: 1 1 160px; min-width: 0; }
   .agenda-row { grid-template-columns: 6px 1fr auto; }
   .agenda-time { grid-column: 2 / 4; padding-bottom: 0; }
   .agenda-course { display: none; }

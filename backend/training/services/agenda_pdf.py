@@ -1,6 +1,7 @@
 """Printable A4 version of an agenda (attached to emails and downloadable from the web app)."""
 
 from io import BytesIO
+from xml.sax.saxutils import escape
 
 from django.conf import settings
 from reportlab.lib import colors
@@ -36,15 +37,15 @@ def render(agenda: Agenda) -> bytes:
         "course": ParagraphStyle("course", fontName=bold, fontSize=8.5, textColor=MUTED, leading=11),
     }
     story = [
-        Paragraph(settings.TMS["ORG_NAME"].upper(), styles["org"]),
-        Paragraph(title(agenda), styles["h1"]),
-        Paragraph(agenda.cohort.name, styles["sub"]),
+        Paragraph(escape(settings.TMS["ORG_NAME"].upper()), styles["org"]),
+        Paragraph(escape(title(agenda)), styles["h1"]),
+        Paragraph(escape(agenda.cohort.name), styles["sub"]),
     ]
     for day in shown_days(agenda):
         block = []
         if day.get("heading"):
-            block.append(Paragraph(day["heading"], styles["h2"]))
-        block.append(Paragraph(day_label(day["date"]) or "Date to be confirmed", styles["day"]))
+            block.append(Paragraph(escape(day["heading"]), styles["h2"]))
+        block.append(Paragraph(escape(day_label(day["date"]) or "Date to be confirmed"), styles["day"]))
         data, style = (
             [],
             [
@@ -64,9 +65,9 @@ def render(agenda: Agenda) -> bytes:
             data.append(
                 [
                     "",
-                    Paragraph(row["time"], styles["time"]),
-                    Paragraph(row["text"], styles["cell"]),
-                    Paragraph(course, styles["course"]),
+                    Paragraph(escape(row["time"]), styles["time"]),
+                    Paragraph(escape(row["text"]), styles["cell"]),
+                    Paragraph(escape(course), styles["course"]),
                 ]
             )
             n = len(data) - 1

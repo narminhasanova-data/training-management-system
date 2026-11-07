@@ -50,7 +50,7 @@ function Distribution({ title, first, columns, rows }) {
             .filter((r) => r.comments?.length)
             .map((r) => (
               <details key={r.label}>
-                <summary>{t("{label}: {n} comments", { label: r.label, n: r.comments.length })}</summary>
+                <summary>{r.comments.length === 1 ? t("{label}: 1 comment", { label: r.label }) : t("{label}: {n} comments", { label: r.label, n: r.comments.length })}</summary>
                 <ul>
                   {r.comments.map((c, i) => (
                     <li key={i}>

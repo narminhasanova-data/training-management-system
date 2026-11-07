@@ -5,6 +5,8 @@ then rating grids for trainers, mentors and materials, and a free-text note. Eac
 about its own week (``grid_weeks``), e.g. mentors of the previous week.
 """
 
+from html import escape
+
 from django.conf import settings
 from django.core import signing
 from django.db.models import Max
@@ -365,10 +367,11 @@ def _email(survey: Survey, to: str, name: str, link: str, test: bool = False) ->
     text = f"{hello}\n\n{intro}\n\n{survey.title}\n{link}\n\nThank you!\n{org} training office"
     html = (
         f'<div style="font-family:system-ui,Segoe UI,Arial,sans-serif;color:#1E1B4B;max-width:560px">'
-        f"<p>{hello}</p><p>{intro}</p>"
-        f'<p><a href="{link}" style="display:inline-block;background:#4338CA;color:#fff;padding:10px 18px;'
+        f"<p>{escape(hello)}</p><p>{escape(intro)}</p>"
+        f'<p><a href="{escape(link)}" style="display:inline-block;background:#4338CA;color:#fff;padding:10px 18px;'
         f'border-radius:8px;text-decoration:none;font-weight:600">Open the survey</a></p>'
-        f'<p style="color:#64748B;font-size:13px">{survey.title}</p><p>Thank you!<br>{org} training office</p></div>'
+        f'<p style="color:#64748B;font-size:13px">{escape(survey.title)}</p>'
+        f"<p>Thank you!<br>{escape(org)} training office</p></div>"
     )
     subject = f"{'[Test] ' if test else ''}{survey.cohort.name}: week {survey.week} feedback survey"
     return mail.Email(to, subject, text, html)
